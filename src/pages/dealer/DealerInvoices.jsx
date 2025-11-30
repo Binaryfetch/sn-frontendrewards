@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { getUserInvoices } from "../../api/api";
 import { formatNumber } from "../../utils/formatters";
+import Pagination from "../../components/ui/Pagination";
 
 const defaultFilters = { query: "", from: "", to: "" };
 
@@ -27,6 +28,8 @@ export default function DealerInvoices() {
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     const load = async () => {
@@ -46,34 +49,36 @@ export default function DealerInvoices() {
   }, []);
 
   const filtered = useMemo(() => applyFilters(invoices, filters), [invoices, filters]);
+  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
+    setPage(1);
   };
 
   return (
-    <div className="space-y-8 text-white">
-      <header className="rounded-[32px] border border-white/10 bg-gradient-to-br from-[#08090c] via-[#101114] to-[#050506] p-8">
+    <div className="space-y-8">
+      <header className="rounded-[32px] border border-gray-200 bg-gradient-to-br from-white via-gray-50 to-white p-8 shadow-lg">
         <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Invoices</p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">My Invoices</h1>
-        <p className="mt-2 text-sm text-gray-400">
+        <h1 className="mt-2 text-3xl font-semibold text-gray-900">My Invoices</h1>
+        <p className="mt-2 text-sm text-gray-600">
           Every invoice shared with you by your distributor. Product-level detail, quantities, and rewards—without clutter.
         </p>
       </header>
 
-      <section className="rounded-[28px] border border-white/10 bg-[#0b0c10] p-8 space-y-6">
+      <section className="rounded-[28px] border border-gray-200 bg-white p-8 space-y-6 shadow-sm">
         <div className="grid gap-4 md:grid-cols-3">
           <label className="text-xs uppercase tracking-[0.3em] text-gray-500">
             Search
-            <div className="mt-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-400">
+            <div className="mt-2 flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm">
               <span>🔍</span>
               <input
                 name="query"
                 value={filters.query}
                 onChange={handleFilterChange}
                 placeholder="Distributor or product"
-                className="flex-1 bg-transparent text-white placeholder:text-gray-500 focus:outline-none"
+                className="flex-1 bg-transparent text-gray-900 placeholder:text-gray-400 focus:outline-none"
               />
             </div>
           </label>
@@ -84,7 +89,7 @@ export default function DealerInvoices() {
               name="from"
               value={filters.from}
               onChange={handleFilterChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none"
+              className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#c7a13f]/20 focus:border-[#c7a13f] shadow-sm"
             />
           </label>
           <label className="text-xs uppercase tracking-[0.3em] text-gray-500">
@@ -94,15 +99,15 @@ export default function DealerInvoices() {
               name="to"
               value={filters.to}
               onChange={handleFilterChange}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none"
+              className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#c7a13f]/20 focus:border-[#c7a13f] shadow-sm"
             />
           </label>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/10 text-sm">
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-[0.3em] text-gray-500">
+              <tr className="text-left text-xs uppercase tracking-[0.3em] text-gray-500 bg-gray-50">
                 <th className="px-4 py-3">From distributor</th>
                 <th className="px-4 py-3">Products & quantities</th>
                 <th className="px-4 py-3">Total quantity</th>
@@ -110,21 +115,21 @@ export default function DealerInvoices() {
                 <th className="px-4 py-3">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
                     Loading invoices…
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
                     No invoices match your filters.
                   </td>
                 </tr>
               ) : (
-                filtered.map((invoice) => {
+                paged.map((invoice) => {
                   const items = invoice.items || [];
                   const totalQty = items.reduce((sum, item) => sum + Number(item.qty || 0), 0);
                   const productsSummary =
@@ -137,20 +142,20 @@ export default function DealerInvoices() {
                       .join(", ") || "—";
 
                   return (
-                    <tr key={invoice._id} className="hover:bg-white/5 align-top">
-                      <td className="px-4 py-4 text-gray-200">
-                        <p className="font-semibold text-white">
+                    <tr key={invoice._id} className="hover:bg-gray-50 align-top">
+                      <td className="px-4 py-4 text-gray-600">
+                        <p className="font-semibold text-gray-900">
                           {invoice.fromUser?.name || "Distributor"}
                         </p>
                       </td>
-                      <td className="px-4 py-4 text-gray-300 max-w-xl">
+                      <td className="px-4 py-4 text-gray-600 max-w-xl">
                         <p className="text-xs leading-relaxed">{productsSummary}</p>
                       </td>
-                      <td className="px-4 py-4 text-gray-200">{formatNumber(totalQty)}</td>
-                      <td className="px-4 py-4 text-[#f5c66f]">
+                      <td className="px-4 py-4 text-gray-600">{formatNumber(totalQty)}</td>
+                      <td className="px-4 py-4 text-[#c7a13f] font-semibold">
                         {formatNumber(invoice.totalReward || 0)} pts
                       </td>
-                      <td className="px-4 py-4 text-gray-300">
+                      <td className="px-4 py-4 text-gray-600">
                         {new Date(invoice.invoiceDate || invoice.date || Date.now()).toLocaleDateString()}
                       </td>
                     </tr>
@@ -160,9 +165,12 @@ export default function DealerInvoices() {
             </tbody>
           </table>
         </div>
+        {!loading && filtered.length > 0 && (
+          <div className="mt-6">
+            <Pagination page={page} pageSize={pageSize} total={filtered.length} onChange={setPage} />
+          </div>
+        )}
       </section>
     </div>
   );
 }
-
-

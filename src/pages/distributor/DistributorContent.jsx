@@ -3,20 +3,18 @@ import ContentView from "../../components/ContentView";
 
 export default function DistributorContent() {
   return (
-    <div className="space-y-8 text-white">
-      <header className="rounded-[32px] border border-white/10 bg-gradient-to-br from-[#08090c] via-[#101114] to-[#050506] p-8">
+    <div className="space-y-8">
+      <header className="rounded-[32px] border border-gray-200 bg-gradient-to-br from-white via-gray-50 to-white p-8 shadow-lg">
         <p className="text-xs uppercase tracking-[0.4em] text-gray-500">SN News</p>
-        <h1 className="mt-3 text-3xl font-semibold text-white">Content library</h1>
-        <p className="mt-2 text-sm text-gray-400">
+        <h1 className="mt-3 text-3xl font-semibold text-gray-900">Content library</h1>
+        <p className="mt-2 text-sm text-gray-600">
           Latest announcements, schemes, and marketing toolkits curated for distributors.
         </p>
       </header>
 
-      <div className="rounded-[32px] border border-white/10 bg-white/5 p-4 text-gray-900">
+      <div className="rounded-[32px] border border-gray-200 bg-white p-4 shadow-sm">
         <ContentView />
       </div>
     </div>
   );
 }
-
-

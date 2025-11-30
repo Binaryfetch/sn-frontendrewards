@@ -8,6 +8,7 @@ import {
 } from "../../api/api";
 import ProductSelector from "../../components/invoice/ProductSelector";
 import { formatNumber } from "../../utils/formatters";
+import Pagination from "../../components/ui/Pagination";
 
 const defaultFilters = { query: "", from: "", to: "" };
 
@@ -73,15 +74,15 @@ export default function DistributorInvoices() {
   );
 
   const receivedInvoices = useMemo(() => {
-    if (!profile?._id) return [];
-    return invoices.filter((invoice) => {
-      const toUserId = invoice.toUser?._id || invoice.toUser;
-      return (
-        invoice.createdByRole === "Company" &&
-        String(toUserId) === String(profile._id)
-      );
-    });
-  }, [invoices, profile?._id]);
+    if (!profile) return [];
+  
+    return invoices.filter(inv =>
+      (inv.fromUser?.role === "Company" || inv.createdByRole === "Company") &&
+      String(inv.toUser?._id) === String(profile._id)
+    );
+  }, [invoices, profile]);
+  
+  
 
   const rewardPointsIssued = myInvoices.reduce(
     (sum, invoice) => sum + Number(invoice.totalReward || 0),
@@ -135,51 +136,8 @@ export default function DistributorInvoices() {
         <MetricCard label="Invoices from company" value={formatNumber(receivedInvoices.length)} icon="🏢" />
       </div>
 
-      <section className="rounded-[28px] border border-gray-200 bg-white p-8 shadow-sm">
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-gray-500">Invoices from Company</p>
-            <h2 className="mt-2 text-2xl font-semibold text-gray-900">Recent hand-offs</h2>
-            <p className="mt-1 text-sm text-gray-600">Latest allocations received from HQ.</p>
-          </div>
-          <span className="text-3xl text-[#c7a13f]">⟲</span>
-        </div>
+     
 
-        {loading ? (
-          <div className="mt-6 h-28 rounded-2xl border border-gray-200 bg-gray-50 animate-pulse" />
-        ) : companyList.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-            No invoices received from company yet.
-          </div>
-        ) : (
-          <div className="mt-6 space-y-4">
-            {companyList.map((invoice) => (
-              <article
-                key={invoice._id}
-                className="rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4"
-              >
-                <div className="flex items-center justify-between text-sm">
-                  <div>
-                    <p className="text-base font-semibold text-gray-900">{invoice.fromUser?.name || "Company"}</p>
-                    <p className="text-xs text-gray-500">
-                      Invoice {invoice.invoiceNumber || invoice._id.slice(-6)} •{" "}
-                      {new Date(invoice.invoiceDate || invoice.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-semibold text-[#c7a13f]">
-                      {formatNumber(invoice.totalReward || 0)} pts
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {invoice.items?.length || 0} items • {formatNumber(invoice.totalQty || 0)} qty
-                    </p>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
 
       <InvoiceTable
         title="My Invoices"
@@ -231,11 +189,15 @@ function MetricCard({ label, value, icon }) {
 }
 
 function InvoiceTable({ title, subtitle, data, filters, onFiltersChange, loading, emptyMessage }) {
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const filteredRows = useMemo(() => applyFilters(data, filters), [data, filters]);
+  const paged = filteredRows.slice((page - 1) * pageSize, page * pageSize);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     onFiltersChange((prev) => ({ ...prev, [name]: value }));
+    setPage(1);
   };
 
   return (
@@ -307,7 +269,7 @@ function InvoiceTable({ title, subtitle, data, filters, onFiltersChange, loading
                 </td>
               </tr>
             ) : (
-              filteredRows.map((invoice) => (
+              paged.map((invoice) => (
                 <tr key={invoice._id} className="hover:bg-gray-50">
                   <td className="px-4 py-4 font-semibold text-gray-900">
                     {invoice.invoiceNumber || `#${invoice._id.slice(-6)}`}
@@ -327,6 +289,11 @@ function InvoiceTable({ title, subtitle, data, filters, onFiltersChange, loading
           </tbody>
         </table>
       </div>
+      {!loading && filteredRows.length > 0 && (
+        <div className="mt-6">
+          <Pagination page={page} pageSize={pageSize} total={filteredRows.length} onChange={setPage} />
+        </div>
+      )}
     </section>
   );
 }

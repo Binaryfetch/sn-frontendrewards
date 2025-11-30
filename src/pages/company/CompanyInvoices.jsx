@@ -70,29 +70,34 @@ export default function CompanyInvoices() {
       toast.error(error.response?.data?.msg || "Upload failed");
     }
   };
-
-  const filtered = useMemo(() => {
-    return invoices.filter((invoice) => {
+  const companyInvoices = useMemo(() => invoices.filter((invoice) => invoice.fromUser?.role === "Company" && invoice.toUser?.role === "Distributor"), [invoices]);
+  const filteredCompany = useMemo(() => {
+    return companyInvoices.filter((invoice) => {
       const invoiceDate = new Date(invoice.invoiceDate || invoice.date || Date.now());
+  
       const matchText = filters.query
         ? [invoice.invoiceNumber, invoice.fromUser?.name, invoice.toUser?.name]
             .filter(Boolean)
             .some((field) => field.toLowerCase().includes(filters.query.toLowerCase()))
         : true;
+  
       const matchFrom = filters.from ? invoiceDate >= new Date(filters.from) : true;
       const matchTo = filters.to ? invoiceDate <= new Date(filters.to) : true;
+  
       return matchText && matchFrom && matchTo;
     });
-  }, [filters, invoices]);
+  }, [filters, companyInvoices]);
+  
 
-  const companyInvoices = useMemo(() => invoices.filter((invoice) => invoice.fromUser?.role === "Company" && invoice.toUser?.role === "Distributor"), [invoices]);
+  
   const distributorToDealerInvoices = useMemo(
     () => invoices.filter((invoice) => invoice.createdByRole === "Distributor" && invoice.toUser?.role === "Dealer"),
     [invoices]
   );
   const companyPoints = companyInvoices.reduce((sum, invoice) => sum + Number(invoice.totalReward || 0), 0);
 
-  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const paged = filteredCompany.slice((page - 1) * pageSize, page * pageSize);
+
   // const Companypaged = companyInvoices.slice((page - 1) * pageSize, page * pageSize);
   const distributorPaged = distributorToDealerInvoices.slice((page - 1) * pageSize, page * pageSize);
 
@@ -232,16 +237,6 @@ export default function CompanyInvoices() {
                       </option>
                     ))}
                   </select>
-                </label>
-                <label className="text-sm font-medium text-gray-700">
-                  Or BP Code
-                  <input
-                    type="text"
-                    value={invoiceForm.customerBpCode}
-                    onChange={(e) => setInvoiceForm((prev) => ({ ...prev, customerBpCode: e.target.value }))}
-                    placeholder="Alternative to distributor selection"
-                    className="mt-2 w-full rounded-2xl border border-gray-200 px-3 py-2"
-                  />
                 </label>
               </div>
               {products.length > 0 && (
@@ -389,7 +384,12 @@ export default function CompanyInvoices() {
               ]}
               data={paged}
             />
-            <Pagination page={page} pageSize={pageSize} total={filtered.length} onChange={setPage} />
+            <Pagination
+  page={page}
+  pageSize={pageSize}
+  total={filteredCompany.length}
+  onChange={setPage}
+/>
           </>
         )}
       </div>
