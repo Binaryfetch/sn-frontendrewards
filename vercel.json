@@ -3,7 +3,8 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "https://pos-backend-tosh.vercel.app/api/:match*"
+      "destination": "https://backend-snrewards.vercel.app/api/:match*"
     }
   ]
 }
+
