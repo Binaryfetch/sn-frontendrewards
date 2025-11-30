@@ -115,7 +115,7 @@ export default function DistributorWallet() {
       </div>
 
       {deductModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-8 shadow-2xl">
             <h2 className="text-2xl font-semibold text-gray-900">Deduct points</h2>
             <p className="mt-2 text-sm text-gray-600">Move reward points from your wallet to a dealer.</p>

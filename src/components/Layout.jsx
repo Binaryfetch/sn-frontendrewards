@@ -100,7 +100,7 @@ export default function Layout({ children, user, setUser, setToken }) {
       </button>
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
-          <div className="flex-1 bg-black/60" onClick={() => setSidebarOpen(false)} />
+          <div className="flex-1 bg-gray-900/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
           <div className="w-72 bg-white p-6 shadow-xl">
             <nav className="space-y-3">
               {navItems.map((item) => (

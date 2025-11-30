@@ -518,7 +518,13 @@ const CompanyInvoiceForm = ({ products, distributors = [], onSubmit, onCancel, l
         </div>
       </div>
 
-      <ProductSelector products={products} items={items} onChange={setItems} />
+      <ProductSelector 
+        products={products} 
+        items={items} 
+        onChange={setItems}
+        userRole="Company"
+        showStock={false}
+      />
 
       <InvoiceSummaryPanel summary={summary} counterpartName={selectedDistributor?.name} />
 
@@ -649,7 +655,13 @@ const DistributorInvoiceForm = ({ products, dealers = [], onSubmit, onCancel, lo
         </div>
       </div>
 
-      <ProductSelector products={products} items={items} onChange={setItems} />
+      <ProductSelector 
+        products={products} 
+        items={items} 
+        onChange={setItems}
+        userRole="Distributor"
+        showStock={true}
+      />
 
       <InvoiceSummaryPanel
         summary={summary}
