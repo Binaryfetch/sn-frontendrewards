@@ -57,7 +57,11 @@ export default function CompanyInvoices() {
 
   const handleUpload = async ({ file, fields }) => {
     try {
-      const res = await uploadInvoices(file, undefined, fields.invoiceDate);
+      
+       const res = await uploadInvoices({
+        file,
+        invoiceDate: fields.invoiceDate
+      });
       setUploadResult({
         title: "Invoice upload",
         message: `Success: ${res.data.successCount || 0} • Failed: ${res.data.failedCount || 0}`,
@@ -446,4 +450,5 @@ export default function CompanyInvoices() {
     </div>
   );
 }
+
 
